@@ -1,0 +1,9 @@
+streamlit
+torch
+torchaudio
+transformers
+librosa
+soundfile
+numpy
+pandas
+ffmpeg-python
