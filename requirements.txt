@@ -1,7 +1,9 @@
-streamlit
-torch
-numpy
-librosa
-soundfile
-pandas
-transformers
+streamlit==1.49.1
+torch==2.8.0
+torchaudio==2.8.0
+transformers==4.56.1
+librosa==0.11.0
+soundfile==0.13.1
+numpy==2.2.6
+pandas==2.3.2
+ffmpeg-python==0.2.0
