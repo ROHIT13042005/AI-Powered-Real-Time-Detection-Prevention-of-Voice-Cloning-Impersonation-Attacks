@@ -4,6 +4,7 @@ huggingface_hub
 accelerate
 torch
 torchaudio
+torchvision
 librosa
 soundfile
 streamlit
