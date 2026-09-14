@@ -10,3 +10,4 @@ soundfile
 streamlit
 pandas
 numpy
+ffmpeg
