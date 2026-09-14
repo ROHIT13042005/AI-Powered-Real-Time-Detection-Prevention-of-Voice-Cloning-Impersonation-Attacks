@@ -20,7 +20,7 @@ import streamlit as st
 import pandas as pd
 
 from transformers import (
-    AutoProcessor,
+    Wav2Vec2FeatureExtractor,
     AutoModelForAudioClassification,
     pipeline
 )
@@ -284,10 +284,11 @@ class VoiceDeepfakeDetector:
         )
         # Feature extractor
         self.feature_extractor = (
-        AutoProcessor.from_pretrained(
-            MODEL_NAME
-            )
-        )
+    Wav2Vec2FeatureExtractor.from_pretrained(
+        MODEL_NAME
+    )
+)
+        
         
 
         # AI model
@@ -435,13 +436,11 @@ LANGUAGE_NAMES = {
     "nep": "Nepali",
     "san": "Sanskrit",
 }
-
 class VoiceLanguageDetector:
 
     def __init__(self):
-        from transformers import AutoModelForAudioClassification
 
-        self.feature_extractor = AutoFeatureExtractor.from_pretrained(
+        self.feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
             LANGUAGE_MODEL_NAME
         )
 
@@ -2026,3 +2025,6 @@ st.caption(
 st.caption(   
     "AI-powered voice cloning impersonation detection"
 )
+
+
+
