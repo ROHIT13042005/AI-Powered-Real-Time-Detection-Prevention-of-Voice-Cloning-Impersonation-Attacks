@@ -166,7 +166,7 @@ def convert_to_16k_mono_wav(uploaded_file):
         wav_path = src_path + "_converted.wav"
 
         command = [
-            "FFMPEG_PATH",                  # change  ffmpeg
+            FFMPEG_PATH,
             "-y",
             "-i", src_path,
             "-ac", "1",
