@@ -1160,84 +1160,83 @@ with tab1:
             key="upload_analyze"
         )
 
-if analyze:
-    with st.spinner("🧠 AI is analyzing the voice..."):
-        try:
+        analyze = st.button(
+            "🔍 ANALYZE VOICE",
+            type="primary",
+            use_container_width=True,
+            key="upload_analyze"
+        )
 
-            # ====================================================
-            # FAST PRIMARY DETECTION
-            # ====================================================
+        if analyze:
+            with st.spinner("🧠 AI is analyzing the voice..."):
+                try:
 
-            analysis_result, probabilities = (
-                analyze_uploaded_audio(
-                    uploaded_file,
-                    detector,
-                    source="file_upload"
-                )
-            )
+                    # ====================================================
+                    # FAST PRIMARY DETECTION
+                    # ====================================================
 
-            # ====================================================
-            # FAST DEMO MODE
-            # Language + Whisper ASR are skipped here
-            # to reduce CPU usage and response time.
-            # ====================================================
+                    analysis_result, probabilities = (
+                        analyze_uploaded_audio(
+                            uploaded_file,
+                            detector,
+                            source="file_upload"
+                        )
+                    )
 
-            analysis_result["language"] = "Not analyzed"
-            analysis_result["language_code"] = "N/A"
-            analysis_result["language_confidence"] = 0.0
+                    # ====================================================
+                    # FAST DEMO MODE
+                    # ====================================================
 
-            analysis_result["transcript"] = ""
-            analysis_result["scam_categories"] = []
-            analysis_result["scam_phrases"] = []
-            analysis_result["scam_score"] = 0.0
+                    analysis_result["language"] = "Not analyzed"
+                    analysis_result["language_code"] = "N/A"
+                    analysis_result["language_confidence"] = 0.0
 
-            # Fake Call Risk is based primarily on
-            # the voice-clone detection score.
-            combined_risk = calculate_combined_call_risk(
-                analysis_result["fake_probability"],
-                0.0
-            )
+                    analysis_result["transcript"] = ""
+                    analysis_result["scam_categories"] = []
+                    analysis_result["scam_phrases"] = []
+                    analysis_result["scam_score"] = 0.0
 
-            analysis_result["combined_risk"] = (
-                combined_risk["verdict"]
-            )
+                    combined_risk = calculate_combined_call_risk(
+                        analysis_result["fake_probability"],
+                        0.0
+                    )
 
-            analysis_result["combined_percentage"] = (
-                combined_risk["combined_percentage"]
-            )
+                    analysis_result["combined_risk"] = (
+                        combined_risk["verdict"]
+                    )
 
-            analysis_result["combined_action"] = (
-                combined_risk["action"]
-            )
+                    analysis_result["combined_percentage"] = (
+                        combined_risk["combined_percentage"]
+                    )
 
-            # ====================================================
-            # SAVE RESULT
-            # ====================================================
+                    analysis_result["combined_action"] = (
+                        combined_risk["action"]
+                    )
 
-            st.session_state["analysis_result"] = (
-                analysis_result
-            )
+                    st.session_state["analysis_result"] = (
+                        analysis_result
+                    )
 
-            st.session_state["probabilities"] = (
-                probabilities
-            )
+                    st.session_state["probabilities"] = (
+                        probabilities
+                    )
 
-            save_incident(analysis_result)
+                    save_incident(analysis_result)
 
-            st.success(
-                "✅ Voice analysis completed successfully."
-            )
+                    st.success(
+                        "✅ Voice analysis completed successfully."
+                    )
 
-        except FileNotFoundError:
-            st.error(
-                "❌ FFmpeg was not found. "
-                "Please check the FFmpeg configuration."
-            )
+                except FileNotFoundError:
+                    st.error(
+                        "❌ FFmpeg was not found. "
+                        "Please check the FFmpeg configuration."
+                    )
 
-        except Exception as error:
-            st.error(
-                f"❌ Could not analyze this file: {error}"
-            )      
+                except Exception as error:
+                    st.error(
+                        f"❌ Could not analyze this file: {error}"
+                    )
 # ============================================================
 # DISPLAY RESULT
 # ============================================================
