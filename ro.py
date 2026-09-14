@@ -25,6 +25,14 @@ from transformers import (
     pipeline
 )
 
+from transformers import (
+    AutoFeatureExtractor,
+    AutoModelForAudioClassification,
+    pipeline
+)
+
+import imageio_ffmpeg
+FFMPEG_PATH = imageio_ffmpeg.get_ffmpeg_exe()
 
 # ============================================================
 # CONFIGURATION
@@ -158,7 +166,7 @@ def convert_to_16k_mono_wav(uploaded_file):
         wav_path = src_path + "_converted.wav"
 
         command = [
-            "ffmpeg",
+            "FFMPEG_PATH",                  # change  ffmpeg
             "-y",
             "-i", src_path,
             "-ac", "1",
@@ -1614,8 +1622,7 @@ with tab2:
     )
 
     live_audio = st.audio_input(
-        "🎙️ Start a microphone recording",
-        sample_rate=16000
+        "🎙️ Start a microphone recording"           # ithe change kela ahe
     )
 
     if live_audio is not None:
