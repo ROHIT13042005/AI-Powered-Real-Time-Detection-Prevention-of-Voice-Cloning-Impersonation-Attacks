@@ -20,13 +20,7 @@ import streamlit as st
 import pandas as pd
 
 from transformers import (
-    AutoFeatureExtractor,
-    AutoModelForAudioClassification,
-    pipeline
-)
-
-from transformers import (
-    AutoFeatureExtractor,
+    AutoProcessor,
     AutoModelForAudioClassification,
     pipeline
 )
@@ -288,13 +282,13 @@ class VoiceDeepfakeDetector:
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu"
         )
-
         # Feature extractor
         self.feature_extractor = (
-            AutoFeatureExtractor.from_pretrained(
-                MODEL_NAME
+        AutoProcessor.from_pretrained(
+            MODEL_NAME
             )
         )
+        
 
         # AI model
         self.model = (
@@ -1167,99 +1161,84 @@ with tab1:
             key="upload_analyze"
         )
 
-        if analyze:
+if analyze:
+    with st.spinner("🧠 AI is analyzing the voice..."):
+        try:
 
-            with st.spinner("🧠 AI is analyzing the voice..."):
+            # ====================================================
+            # FAST PRIMARY DETECTION
+            # ====================================================
 
-                try:
+            analysis_result, probabilities = (
+                analyze_uploaded_audio(
+                    uploaded_file,
+                    detector,
+                    source="file_upload"
+                )
+            )
 
-                    analysis_result, probabilities = (
-                        analyze_uploaded_audio(
-                            uploaded_file,
-                            detector,
-                            source="file_upload"
-                        )
-                    )
+            # ====================================================
+            # FAST DEMO MODE
+            # Language + Whisper ASR are skipped here
+            # to reduce CPU usage and response time.
+            # ====================================================
 
-                    converted_audio, converted_sr, _ = (
-                        convert_to_16k_mono_wav(uploaded_file)
-                    )
+            analysis_result["language"] = "Not analyzed"
+            analysis_result["language_code"] = "N/A"
+            analysis_result["language_confidence"] = 0.0
 
-                    language_result = language_detector.detect(
-                        converted_audio,
-                        converted_sr
-                    )
+            analysis_result["transcript"] = ""
+            analysis_result["scam_categories"] = []
+            analysis_result["scam_phrases"] = []
+            analysis_result["scam_score"] = 0.0
 
-                    analysis_result["language"] = (
-                        language_result["language"]
-                    )
-                    analysis_result["language_code"] = (
-                        language_result["code"]
-                    )
-                    analysis_result["language_confidence"] = (
-                        language_result["confidence"]
-                    )
+            # Fake Call Risk is based primarily on
+            # the voice-clone detection score.
+            combined_risk = calculate_combined_call_risk(
+                analysis_result["fake_probability"],
+                0.0
+            )
 
-                    # --- Fake / scam call detection (speech-to-text) ---
-                    transcript = transcribe_audio(
-                        converted_audio,
-                        converted_sr,
-                        asr_pipeline
-                    )
+            analysis_result["combined_risk"] = (
+                combined_risk["verdict"]
+            )
 
-                    scam_result = detect_scam_keywords(transcript)
+            analysis_result["combined_percentage"] = (
+                combined_risk["combined_percentage"]
+            )
 
-                    combined_risk = calculate_combined_call_risk(
-                        analysis_result["fake_probability"],
-                        scam_result["scam_score"]
-                    )
+            analysis_result["combined_action"] = (
+                combined_risk["action"]
+            )
 
-                    analysis_result["transcript"] = transcript
-                    analysis_result["scam_categories"] = (
-                        scam_result["matched_categories"]
-                    )
-                    analysis_result["scam_phrases"] = (
-                        scam_result["matched_phrases"]
-                    )
-                    analysis_result["scam_score"] = (
-                        scam_result["scam_score"]
-                    )
-                    analysis_result["combined_risk"] = (
-                        combined_risk["verdict"]
-                    )
-                    analysis_result["combined_percentage"] = (
-                        combined_risk["combined_percentage"]
-                    )
-                    analysis_result["combined_action"] = (
-                        combined_risk["action"]
-                    )
+            # ====================================================
+            # SAVE RESULT
+            # ====================================================
 
-                    st.session_state["analysis_result"] = (
-                        analysis_result
-                    )
+            st.session_state["analysis_result"] = (
+                analysis_result
+            )
 
-                    st.session_state["probabilities"] = (
-                        probabilities
-                    )
+            st.session_state["probabilities"] = (
+                probabilities
+            )
 
-                    save_incident(analysis_result)
+            save_incident(analysis_result)
 
-                    st.success(
-                        "✅ Analysis completed successfully."
-                    )
+            st.success(
+                "✅ Voice analysis completed successfully."
+            )
 
-                except FileNotFoundError:
-                    st.error(
-                        "❌ FFmpeg was not found. "
-                        "Install FFmpeg and restart the terminal."
-                    )
+        except FileNotFoundError:
+            st.error(
+                "❌ FFmpeg was not found. "
+                "Please check the FFmpeg configuration."
+            )
 
-                except Exception as error:
-                    st.error(
-                        f"❌ Could not analyze this file: {error}"
-                    )
-
-
+        except Exception as error:
+            st.error(
+                f"❌ Could not analyze this file: {error}"
+            )      
 # ============================================================
 # DISPLAY RESULT
 # ============================================================
