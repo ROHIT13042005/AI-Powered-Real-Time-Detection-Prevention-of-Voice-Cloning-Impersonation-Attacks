@@ -1160,12 +1160,7 @@ with tab1:
             key="upload_analyze"
         )
 
-        analyze = st.button(
-            "🔍 ANALYZE VOICE",
-            type="primary",
-            use_container_width=True,
-            key="upload_analyze"
-        )
+        
 
         if analyze:
             with st.spinner("🧠 AI is analyzing the voice..."):
